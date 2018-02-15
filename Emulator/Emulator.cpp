@@ -441,6 +441,18 @@ void set_flag_v(BYTE in1, BYTE in2, BYTE out1)
 
 }
 
+void set_flag_i(BYTE inReg)// Interrupt flag
+{
+	BYTE reg;
+	reg = inReg;
+	if ((reg & 0x80) != 0) {
+		Flags = Flags | FLAG_I;
+	}
+	else {
+		Flags = Flags & (0xFF - FLAG_I);
+	}
+}
+
 void Group_1(BYTE opcode)
 {
 	BYTE LB = 0;
@@ -739,8 +751,8 @@ void Group_1(BYTE opcode)
 		Registers[REGISTER_A] = (BYTE)temp_word;
 		break;
 
-	case 0x25: // Compare
-		temp_word = (WORD)Registers[REGISTER_A] - (WORD)Registers[REGISTER_B]; // makes temp word 16 bits
+	case 0x33: // ADD A-C
+		temp_word = (WORD)Registers[REGISTER_A] + (WORD)Registers[REGISTER_C]; // makes temp word 16 bits
 		if ((Flags & FLAG_C) != 0) {
 			temp_word++; // Set temp word if carry flag is set
 		}
@@ -753,7 +765,140 @@ void Group_1(BYTE opcode)
 
 		set_flag_n((BYTE)temp_word);
 		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], Registers[REGISTER_C], (BYTE)temp_word);
+
+		Registers[REGISTER_A] = (BYTE)temp_word;
+		break;
+
+	case 0x43: // ADD A-D
+		temp_word = (WORD)Registers[REGISTER_A] + (WORD)Registers[REGISTER_D]; // makes temp word 16 bits
+		if ((Flags & FLAG_C) != 0) {
+			temp_word++; // Set temp word if carry flag is set
+		}
+		if (temp_word >= 0x100) {
+			Flags = Flags | FLAG_C; // set carry flag
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C); // Clear Carry Flag
+		}
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], Registers[REGISTER_D], (BYTE)temp_word);
+
+		Registers[REGISTER_A] = (BYTE)temp_word;
+		break;
+
+	case 0x53: // ADD A-E
+		temp_word = (WORD)Registers[REGISTER_A] + (WORD)Registers[REGISTER_E]; // makes temp word 16 bits
+		if ((Flags & FLAG_C) != 0) {
+			temp_word++; // Set temp word if carry flag is set
+		}
+		if (temp_word >= 0x100) {
+			Flags = Flags | FLAG_C; // set carry flag
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C); // Clear Carry Flag
+		}
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], Registers[REGISTER_E], (BYTE)temp_word);
+
+		Registers[REGISTER_A] = (BYTE)temp_word;
+		break;
+
+	case 0x63: // ADD A-F
+		temp_word = (WORD)Registers[REGISTER_A] + (WORD)Registers[REGISTER_F]; // makes temp word 16 bits
+		if ((Flags & FLAG_C) != 0) {
+			temp_word++; // Set temp word if carry flag is set
+		}
+		if (temp_word >= 0x100) {
+			Flags = Flags | FLAG_C; // set carry flag
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C); // Clear Carry Flag
+		}
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], Registers[REGISTER_F], (BYTE)temp_word);
+
+		Registers[REGISTER_A] = (BYTE)temp_word;
+		break;
+
+	case 0x25: // Compare CMP A-B
+		temp_word = (WORD)Registers[REGISTER_A] - (WORD)Registers[REGISTER_B]; // makes temp word 16 bits
+		if (temp_word >= 0x100) {
+			Flags = Flags | FLAG_C; // set carry flag
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C); // Clear Carry Flag
+		}
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
 		set_flag_v(Registers[REGISTER_A], Registers[REGISTER_B], (BYTE)temp_word);
+
+		break;
+
+	case 0x35: // CMP A-C
+		temp_word = (WORD)Registers[REGISTER_A] - (WORD)Registers[REGISTER_C]; // makes temp word 16 bits
+		if (temp_word >= 0x100) {
+			Flags = Flags | FLAG_C; // set carry flag
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C); // Clear Carry Flag
+		}
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], Registers[REGISTER_C], (BYTE)temp_word);
+
+		break;
+
+	case 0x45: // CMP A-D
+		temp_word = (WORD)Registers[REGISTER_A] - (WORD)Registers[REGISTER_D]; // makes temp word 16 bits
+		if (temp_word >= 0x100) {
+			Flags = Flags | FLAG_C; // set carry flag
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C); // Clear Carry Flag
+		}
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], Registers[REGISTER_D], (BYTE)temp_word);
+
+		break;
+
+	case 0x55://CMP A-E
+		temp_word = (WORD)Registers[REGISTER_A] - (WORD)Registers[REGISTER_E]; // makes temp word 16 bits
+		if (temp_word >= 0x100) {
+			Flags = Flags | FLAG_C; // set carry flag
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C); // Clear Carry Flag
+		}
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], Registers[REGISTER_E], (BYTE)temp_word);
+
+		break;
+
+	case 0x65: //CMP A-F
+		temp_word = (WORD)Registers[REGISTER_A] - (WORD)Registers[REGISTER_F]; // makes temp word 16 bits
+		if (temp_word >= 0x100) {
+			Flags = Flags | FLAG_C; // set carry flag
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C); // Clear Carry Flag
+		}
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], Registers[REGISTER_F], (BYTE)temp_word);
 
 		break;
 
