@@ -1081,6 +1081,149 @@ void Group_1(BYTE opcode)
 
 		break;
 
+	case 0xF1: // BCC Branch on carry clear
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_C) == 0) {
+			ProgramCounter = address;
+		}
+		break;
+
+	case 0xF2: // Branch on carry set BCS
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_C) == 1) {
+			ProgramCounter = address;
+		}
+		break;
+
+	case 0xF3: // Branch on result not zero BNE
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_Z) != 0) {
+			ProgramCounter = address;
+		}
+		break;
+
+	case 0xF4: // Branch on equal to 0 BEQ
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_Z) == 0) {
+			ProgramCounter = address;
+		}
+		break;
+
+	case 0xF5: // Branch on overflow clear BVC
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_V) == 0) {
+			ProgramCounter = address;
+		}
+		break;
+
+	case 0xF6: // Branch on overflow set BVS
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_V) == 1) {
+			ProgramCounter = address;
+		}
+		break;
+
+	case 0xF7: // branch on negative result BMI
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_N) == 1) {
+			ProgramCounter = address;
+		}
+		break;
+	
+	case 0xF8: // BPL branch on positive result
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_N) == 0) {
+			ProgramCounter = address;
+		}
+		break;
+
+	case 0xF9: //BGE Branch on less or equal to 0
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_Z) == 1 || (Flags & FLAG_N) == 1)  {
+			ProgramCounter = address;
+		}
+		break;
+
+	case 0xFA: // BLE branch on result greater than or equal to 0
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_Z) == 0 || (Flags & FLAG_N) == 0) {
+			ProgramCounter = address;
+		}
+		break;
+
+	case 0xFB: // BGT Branch on result less than zero
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_N) == 1) {
+			ProgramCounter = address;
+		}
+		break;
+
+	case 0xFC: // BLT Branch on result greater  than zero
+		LB = fetch();
+		offset = (WORD)LB;
+		if ((offset & 0x80) != 0) {
+			offset = offset + 0xFF00;
+		}
+		address = ProgramCounter + offset;
+		if ((Flags & FLAG_N) == 0) {
+			ProgramCounter = address;
+		}
+		break;
 	}
 
 
