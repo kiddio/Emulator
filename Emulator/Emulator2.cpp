@@ -1133,9 +1133,6 @@ void Group_1(BYTE opcode)
 		break;
 
 	case 0x92: // INC abs
-			   /*HB = fetch();
-			   LB = fetch();
-			   address += (WORD)((WORD)HB << 8) + LB;*/
 		HB = fetch();
 		LB = fetch();
 
@@ -1574,6 +1571,211 @@ void Group_1(BYTE opcode)
 		Registers[REGISTER_A] = (BYTE)temp_word;
 		set_flag_n((BYTE)temp_word);
 		set_flag_z((BYTE)temp_word);
+		break;
+
+	case 0x94: //RCR ABS
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			if ((Memory[address] & 0x01) == 0x01) {
+				Flags = Flags | FLAG_C;
+			}
+			else
+			{
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (Memory[address] >> 1) & 0x7F;
+			if ((Flags&FLAG_C) == FLAG_C) {
+				Memory[address] = Memory[address] | 0x80;
+			}
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xA4: // RCR X
+		address += Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			if ((Memory[address] & 0x01) == 0x01) {
+				Flags = Flags | FLAG_C;
+			}
+			else
+			{
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (Memory[address] >> 1) & 0x7F;
+			if ((Flags&FLAG_C) == FLAG_C) {
+				Memory[address] = Memory[address] | 0x80;
+			}
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xB4: // RCR Y
+		address += Index_Registers[REGISTER_Y];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			if ((Memory[address] & 0x01) == 0x01) {
+				Flags = Flags | FLAG_C;
+			}
+			else
+			{
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (Memory[address] >> 1) & 0x7F;
+			if ((Flags&FLAG_C) == FLAG_C) {
+				Memory[address] = Memory[address] | 0x80;
+			}
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xC4:// RCR XY
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			if ((Memory[address] & 0x01) == 0x01) {
+				Flags = Flags | FLAG_C;
+			}
+			else
+			{
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (Memory[address] >> 1) & 0x7F;
+			if ((Flags&FLAG_C) == FLAG_C) {
+				Memory[address] = Memory[address] | 0x80;
+			}
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xD4: // RCRA Accumulator
+		if ((Registers[REGISTER_A] & 0x01) == 0x01) {
+			Flags = Flags | FLAG_C;
+		}
+		else
+		{
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Registers[REGISTER_A] = (Registers[REGISTER_A] >> 1) & 0x7F;
+		if ((Flags &FLAG_C) == FLAG_C) {
+			Registers[REGISTER_A] = Registers[REGISTER_A] | 0x80;
+		}
+		set_flag_n(Registers[REGISTER_A]);
+		set_flag_z(Registers[REGISTER_A]);
+		break;
+
+	case 0x95: // RLC abs
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			if ((Memory[address] & 0x80) == 0x80) {
+				Flags = Flags | FLAG_C;
+			}
+			else
+			{
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (Memory[address] << 1) & 0xFE;
+			if ((Flags & FLAG_C) == FLAG_C) {
+				Memory[address] = Memory[address] | 0x01;
+			}
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xA5: // RLC X
+		address += Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			if ((Memory[address] & 0x80) == 0x80) {
+				Flags = Flags | FLAG_C;
+			}
+			else
+			{
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (Memory[address] << 1) & 0xFE;
+			if ((Flags & FLAG_C) == FLAG_C) {
+				Memory[address] = Memory[address] | 0x01;
+			}
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xB5: // RLC Y
+		address += Index_Registers[REGISTER_Y];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			if ((Memory[address] & 0x80) == 0x80) {
+				Flags = Flags | FLAG_C;
+			}
+			else
+			{
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (Memory[address] << 1) & 0xFE;
+			if ((Flags & FLAG_C) == FLAG_C) {
+				Memory[address] = Memory[address] | 0x01;
+			}
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xC5: // RLC XY
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			if ((Memory[address] & 0x80) == 0x80) {
+				Flags = Flags | FLAG_C;
+			}
+			else
+			{
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (Memory[address] << 1) & 0xFE;
+			if ((Flags & FLAG_C) == FLAG_C) {
+				Memory[address] = Memory[address] | 0x01;
+			}
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+
+	case 0xD5: // RLC A Accumulator
+		if ((Registers[REGISTER_A] & 0x80) == 0x80) {
+			Flags = Flags | FLAG_C;
+		}
+		else
+		{
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Registers[REGISTER_A] = (Registers[REGISTER_A] << 1) & 0xFE;
+		if ((Flags & FLAG_C) == FLAG_C) {
+			Registers[REGISTER_A] = Registers[REGISTER_A] | 0x01;
+		}
+		set_flag_n(Registers[REGISTER_A]);
+		set_flag_z(Registers[REGISTER_A]);
 		break;
 	}
 
