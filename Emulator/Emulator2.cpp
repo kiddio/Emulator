@@ -389,6 +389,29 @@ BYTE fetch()
 }
 
 
+/*
+* Function: set_flag_i(BYTE inReg)
+* Description:sets the Interrupt flag if
+* Parameters: BYTE inreg
+* Returns: None
+* Warnings:
+*/
+void set_flag_i(BYTE inReg)//interrupt
+{
+	BYTE reg;
+	reg = inReg;
+
+	if ((reg & 0x80) != 0)
+	{
+		Flags = Flags | FLAG_I;
+	}
+	else
+	{
+		Flags = Flags & (0xFF - FLAG_I);
+	}
+}
+
+
 void set_flag_n(BYTE inReg)
 {
 	BYTE reg;
@@ -404,7 +427,9 @@ void set_flag_n(BYTE inReg)
 	}
 }
 
-void set_flag_z(BYTE inReg) {
+
+void set_flag_z(BYTE inReg)//zero flag 
+{
 	BYTE reg;
 	reg = inReg;
 
@@ -416,6 +441,56 @@ void set_flag_z(BYTE inReg) {
 	{
 		Flags = Flags & (0xFF - FLAG_Z);
 	}
+}
+
+
+void set_flag_n_word(WORD inReg) // NEgative Flag
+{
+	WORD reg;
+	reg = inReg;
+
+	if ((reg & 0x8000) != 0)
+	{
+		Flags = Flags | FLAG_N;
+	}
+	else
+	{
+		Flags = Flags & (0xFF - FLAG_N);
+	}
+}
+
+
+void set_flag_z_word(WORD inReg)
+{
+	WORD reg;
+	reg = inReg;
+
+	if (reg == 0)
+	{
+		Flags = Flags | FLAG_Z;
+	}
+	else
+	{
+		Flags = Flags & (0xFF - FLAG_Z);
+	}
+}
+
+
+void set_flag_c(BYTE inReg)//carry flag 
+{
+	return;//
+	BYTE reg;
+	reg = inReg;
+
+	if ((reg & 0x80) != 0) // not implemented properly 
+	{
+		Flags = Flags | FLAG_C;
+	}
+	else
+	{
+		Flags = Flags & (0xFF - FLAG_C);
+	}
+
 }
 
 
@@ -439,17 +514,6 @@ void set_flag_v(BYTE in1, BYTE in2, BYTE out1) {
 	}
 }
 
-void set_flag_i(BYTE inReg)// Interrupt flag
-{
-	BYTE reg;
-	reg = inReg;
-	if ((reg & 0x80) != 0) {
-		Flags = Flags | FLAG_I;
-	}
-	else {
-		Flags = Flags & (0xFF - FLAG_I);
-	}
-}
 
 void Group_1(BYTE opcode)
 {
@@ -459,6 +523,7 @@ void Group_1(BYTE opcode)
 	WORD data = 0;
 	WORD temp_word;
 	WORD offset;
+	BYTE temp;
 
 	switch (opcode)
 	{
@@ -1776,6 +1841,671 @@ void Group_1(BYTE opcode)
 		}
 		set_flag_n(Registers[REGISTER_A]);
 		set_flag_z(Registers[REGISTER_A]);
+		break;
+
+	case 0x96: // ASL abs Shift Left
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+
+			temp_word = (Memory[address] << 1);
+			if (temp_word >= 0x100)//if overflowed set flag
+			{
+				Flags = Flags | FLAG_C;
+			}
+			else {
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (BYTE)temp_word;
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xA6:// ASL X
+		address += Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+
+			temp_word = (Memory[address] << 1);
+			if (temp_word >= 0x100)//if overflowed set flag
+			{
+				Flags = Flags | FLAG_C;
+			}
+			else {
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (BYTE)temp_word;
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xB6: // ASL Y
+		address += Index_Registers[REGISTER_Y];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+
+			temp_word = (Memory[address] << 1);
+			if (temp_word >= 0x100)//if overflowed set flag
+			{
+				Flags = Flags | FLAG_C;
+			}
+			else {
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (BYTE)temp_word;
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xC6: // ASL XY
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+
+			temp_word = (Memory[address] << 1);
+			if (temp_word >= 0x100)//if overflowed set flag
+			{
+				Flags = Flags | FLAG_C;
+			}
+			else {
+				Flags = Flags & (0xFF - FLAG_C);
+			}
+			Memory[address] = (BYTE)temp_word;
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xD6:// ASL Accumulator
+		temp_word = (Registers[REGISTER_A] << 1);
+		if (temp_word >= 0x100)//if overflowed set flag
+		{
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Registers[REGISTER_A] = (BYTE)temp_word;
+		set_flag_n(Registers[REGISTER_A]);
+		set_flag_z(Registers[REGISTER_A]);
+		break;
+
+	case 0x97: // SAR abs
+		HB = fetch();
+		LB = fetch();
+		temp = Memory[address];
+		address += (WORD)((WORD)HB << 8) + LB;
+		if ((Memory[address] & 0x01) == 0x01) {//underflow set carry
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Memory[address] = Memory[address] >> 1;
+		if ((temp & 0x80) == 0x80) {
+			Memory[address] |= 1 << 7;
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xA7:// SAR x
+		address += Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		temp = Memory[address];
+		address += (WORD)((WORD)HB << 8) + LB;
+		if ((Memory[address] & 0x01) == 0x01) {//underflow set carry
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Memory[address] = Memory[address] >> 1;
+		if ((temp & 0x80) == 0x80) {
+			Memory[address] |= 1 << 7;
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xB7: // SAR y
+		address += Index_Registers[REGISTER_Y];
+		HB = fetch();
+		LB = fetch();
+		temp = Memory[address];
+		address += (WORD)((WORD)HB << 8) + LB;
+		if ((Memory[address] & 0x01) == 0x01) {//underflow set carry
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Memory[address] = Memory[address] >> 1;
+		if ((temp & 0x80) == 0x80) {
+			Memory[address] |= 1 << 7;
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xC7: // SAR XY
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		temp = Memory[address];
+		address += (WORD)((WORD)HB << 8) + LB;
+		if ((Memory[address] & 0x01) == 0x01) {//underflow set carry
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Memory[address] = Memory[address] >> 1;
+		if ((temp & 0x80) == 0x80) {
+			Memory[address] |= 1 << 7;
+		}
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xD7: // SARA
+		if ((Registers[REGISTER_A] & 0x01) == 0x01) {
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Registers[REGISTER_A] = (Registers[REGISTER_A] >> 1) & 0x7F;
+
+		if ((Flags & FLAG_N) == FLAG_N) {
+			Registers[REGISTER_A] = Registers[REGISTER_A] | 0x80;
+		}
+		set_flag_n(Registers[REGISTER_A]);
+		set_flag_z(Registers[REGISTER_A]);
+		break;
+
+	case 0x98: // COM abs
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = ~Memory[address];
+
+		if (temp_word >= 0x100)
+		{
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xA8: // COM abs x
+		address += Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = ~Memory[address];
+
+		if (temp_word >= 0x100)
+		{
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xB8: // COM abs y
+		address += Index_Registers[REGISTER_Y];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = ~Memory[address];
+
+		if (temp_word >= 0x100)
+		{
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xC8: // COM abs xy
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = ~Memory[address];
+
+		if (temp_word >= 0x100)
+		{
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xD8: // COM A
+		temp_word = ~Registers[REGISTER_A];
+		if (temp_word >= 0x100)
+		{
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Registers[REGISTER_A] = (BYTE)temp_word;
+		set_flag_n(temp_word);
+		set_flag_z(temp_word);
+		break;
+
+	case 0x99: // RAL abs
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = (Memory[address] << 1);
+		if (temp_word >= 0x100)
+		{
+			temp_word = temp_word | 0x01;
+		}
+
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xA9: // RAL abs x
+		address += Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = (Memory[address] << 1);
+		if (temp_word >= 0x100)
+		{
+			temp_word = temp_word | 0x01;
+		}
+
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xB9: // RAL abs y
+		address += Index_Registers[REGISTER_Y];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = (Memory[address] << 1);
+		if (temp_word >= 0x100)
+		{
+			temp_word = temp_word | 0x01;
+		}
+
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xC9: // RAL abs XY
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = (Memory[address] << 1);
+		if (temp_word >= 0x100)
+		{
+			temp_word = temp_word | 0x01;
+		}
+
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xD9: // RAL A
+		temp_word = (Registers[REGISTER_A] << 1);
+		if (temp_word >= 0x100)
+		{
+			temp_word = temp_word | 0x01;
+		}
+
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0x9A: // ROR abs
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = (Memory[address] >> 1);
+		if ((Memory[address] & 0x01) != 0)
+		{
+			temp_word = temp_word | 0x80;
+		}
+
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xAA: // ROR x
+		address += Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = (Memory[address] >> 1);
+		if ((Memory[address] & 0x01) != 0)
+		{
+			temp_word = temp_word | 0x80;
+		}
+
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xBA: // ROR y
+		address += Index_Registers[REGISTER_Y];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = (Memory[address] >> 1);
+		if ((Memory[address] & 0x01) != 0)
+		{
+			temp_word = temp_word | 0x80;
+		}
+
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xCA: // ROR xy
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		temp_word = (Memory[address] >> 1);
+		if ((Memory[address] & 0x01) != 0)
+		{
+			temp_word = temp_word | 0x80;
+		}
+
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0xDA: // ROR A
+		temp_word = (Registers[REGISTER_A] >> 1);
+		if ((Memory[address] & 0x01) != 0)
+		{
+			temp_word = temp_word | 0x80;
+		}
+
+		Memory[address] = (BYTE)temp_word;
+		set_flag_n(Memory[address]);
+		set_flag_z(Memory[address]);
+		break;
+
+	case 0x31: // LDX #
+		data = fetch();
+		Index_Registers[REGISTER_X] = data;
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		if (address >= 0 && address < MEMORY_SIZE) {
+			Index_Registers[REGISTER_X] = Memory[address];
+		}
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		break;
+
+	case 0x41: // LDX abs
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			Index_Registers[REGISTER_X] = Memory[address];
+		}
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		break;
+
+	case 0x51: // LDX abs x
+		address += Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			Index_Registers[REGISTER_X] = Memory[address];
+		}
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		break;
+
+	case 0x61: // LDX abs  y
+		address += Index_Registers[REGISTER_Y];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			Index_Registers[REGISTER_X] = Memory[address];
+		}
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		break;
+
+	case 0x71: // LDX abs xy
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			Index_Registers[REGISTER_X] = Memory[address];
+		}
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		break;
+
+	case 0x81: // LDX ind xy
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		HB = Memory[address];
+		LB = Memory[address + 1];
+		address += (WORD)((WORD)HB << 8) + LB;
+		address += Index_Registers[REGISTER_X];
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8);
+		if (address >= 0 && address < MEMORY_SIZE) {
+			Index_Registers[REGISTER_X] = Memory[address];
+		}
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		break;
+
+	case 0x02: // STX abs
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			Memory[address] = Index_Registers[REGISTER_X];
+		}
+
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		break;
+
+	case 0x12: // STX abs x
+		address += Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			Memory[address] = Index_Registers[REGISTER_X];
+		}
+
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		break;
+
+	case 0x22: // STX abs y
+		address += Index_Registers[REGISTER_Y];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			Memory[address] = Index_Registers[REGISTER_X];
+		}
+
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		break;
+
+	case 0x32: // STX abs xy
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		if (address >= 0 && address < MEMORY_SIZE) {
+			Memory[address] = Index_Registers[REGISTER_X];
+		}
+
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		break;
+
+	case 0x42: // STX ind xy
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+		HB = Memory[address];
+		LB = Memory[address + 1];
+		address += (WORD)((WORD)HB << 8) + LB;
+		address += Index_Registers[REGISTER_X];
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8);
+		if (address >= 0 && address < MEMORY_SIZE) {
+			Memory[address] = Index_Registers[REGISTER_X];
+		}
+
+		set_flag_n(Index_Registers[REGISTER_X]);
+		set_flag_z(Index_Registers[REGISTER_X]);
+		break;
+
+	case 0xE3: // DEY decrease Y
+		Index_Registers[REGISTER_Y]--;
+		set_flag_z(Index_Registers[REGISTER_Y]);
+		break;
+
+	case 0xE4: // INCY increase y
+		Index_Registers[REGISTER_Y]++;
+		set_flag_z(Index_Registers[REGISTER_Y]);
+		break;
+
+	case 0x0E: // MAS impl
+		Flags = Registers[REGISTER_A];
+		break;
+
+	case 0x9B: // LX A B #
+		HB = fetch();
+		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
+
+		Registers[REGISTER_B] = HB;// Memory[fetch()];
+		Registers[REGISTER_A] = LB;// Memory[fetch()];
+		set_flag_n_word(address);
+		set_flag_z_word(address);
+		break;
+
+	case 0x18: // CLC impl
+		Flags = Flags & (0xFF - FLAG_C);
+		break;
+
+	case 0x19://SEC impl
+		Flags = Flags | FLAG_C;
+		break;
+
+	case 0x1A://CLI impl
+		Flags = Flags & (0xFF - FLAG_I);
+		break;
+
+	case 0x1B://STI impl
+		Flags = Flags | FLAG_I;
+		break;
+
+	case 0x1C://STV impl
+		Flags = Flags | FLAG_V;
+		break;
+
+	case 0x1D://CLV impl
+		Flags = Flags & (0xFF - FLAG_V);
+		break;
+
+	case 0x74://HLT impl
+		halt = true;
+		break;
+
+	case 0x16://SWI impl
+		if ((StackPointer >= 7) && (StackPointer < MEMORY_SIZE)) {
+			Memory[StackPointer] = Registers[REGISTER_A];
+			StackPointer--;
+			Memory[StackPointer] = Registers[REGISTER_B];
+			StackPointer--;
+			Memory[StackPointer] = Registers[REGISTER_C];
+			StackPointer--;
+			Memory[StackPointer] = Registers[REGISTER_D];
+			StackPointer--;
+			Memory[StackPointer] = Registers[REGISTER_E];
+			StackPointer--;
+			Memory[StackPointer] = Registers[REGISTER_F];
+			StackPointer--;
+			Memory[StackPointer] = Flags;
+			StackPointer--;
+		}
+		break;
+
+	case 0x17://SWI impl
+		if ((StackPointer >= 0) && (StackPointer < MEMORY_SIZE - 1)) {
+			StackPointer++;
+			Flags = Memory[StackPointer];
+			StackPointer++;
+			Registers[REGISTER_F] = Memory[StackPointer];
+			StackPointer++;
+			Registers[REGISTER_E] = Memory[StackPointer];
+			StackPointer++;
+			Registers[REGISTER_D] = Memory[StackPointer];
+			StackPointer++;
+			Registers[REGISTER_C] = Memory[StackPointer];
+			StackPointer++;
+			Registers[REGISTER_B] = Memory[StackPointer];
+			StackPointer++;
+			Registers[REGISTER_A] = Memory[StackPointer];
+		}
 		break;
 	}
 
