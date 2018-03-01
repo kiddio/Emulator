@@ -544,12 +544,10 @@ void Group_1(BYTE opcode) // Main functions
 		break;
 
 	case 0xA0: // LDA abs  Absolute addressing
-
 		HB = fetch();
 		LB = fetch();
-
 		address += (WORD)((WORD)HB << 8) + LB;
-		if (address >= 0 && address < MEMORY_SIZE) {
+		if ((address >= 0) && (address < MEMORY_SIZE)) {
 			Registers[REGISTER_A] = Memory[address];
 		}
 		set_flag_n(Registers[REGISTER_A]);
@@ -558,13 +556,11 @@ void Group_1(BYTE opcode) // Main functions
 		break;
 
 	case 0xB0: //LDA abs,X Indexed absolute
-
 		address += Index_Registers[REGISTER_X];
 		HB = fetch();
 		LB = fetch();
-
 		address += (WORD)((WORD)HB << 8) + LB;
-		if (address >= 0 && address < MEMORY_SIZE) {
+		if ((address >= 0) && (address < MEMORY_SIZE)) {
 			Registers[REGISTER_A] = Memory[address];
 		}
 		set_flag_n(Registers[REGISTER_A]);
@@ -572,13 +568,11 @@ void Group_1(BYTE opcode) // Main functions
 		break;
 
 	case 0xC0: //LDA abs,Y Register Y addressed
-
 		address += Index_Registers[REGISTER_Y];
 		HB = fetch();
 		LB = fetch();
-
 		address += (WORD)((WORD)HB << 8) + LB;
-		if (address >= 0 && address < MEMORY_SIZE) {
+		if ((address >= 0) && (address < MEMORY_SIZE)) {
 			Registers[REGISTER_A] = Memory[address];
 		}
 		set_flag_n(Registers[REGISTER_A]);
@@ -586,12 +580,11 @@ void Group_1(BYTE opcode) // Main functions
 		break;
 
 	case 0xD0: //LDA abs,XY Registers X and Y addressed
-
 		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
 		HB = fetch();
 		LB = fetch();
 		address += (WORD)((WORD)HB << 8) + LB;
-		if (address >= 0 && address < MEMORY_SIZE) {
+		if ((address >= 0) && (address < MEMORY_SIZE)) {
 			Registers[REGISTER_A] = Memory[address];
 		}
 		set_flag_n(Registers[REGISTER_A]);
@@ -599,16 +592,15 @@ void Group_1(BYTE opcode) // Main functions
 		break;
 
 	case 0xE0: // LDA (ind),XY
-
 		HB = fetch();
 		LB = fetch();
-		address = (WORD)((WORD)HB << 8) + LB;
+		address += (WORD)((WORD)HB << 8) + LB;
 		HB = Memory[address];
 		LB = Memory[address + 1];
-		address = (WORD)((WORD)HB << 8) + LB;
+		address += (WORD)((WORD)HB << 8) + LB;
 		address += Index_Registers[REGISTER_X];
-		address += (WORD)((WORD)Index_Registers[REGISTER_X] << 8);
-		if (address >= 0 && address < MEMORY_SIZE) {
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8);
+		if ((address >= 0) && (address < MEMORY_SIZE)) {
 			Registers[REGISTER_A] = Memory[address];
 		}
 		set_flag_n(Registers[REGISTER_A]);
@@ -616,10 +608,8 @@ void Group_1(BYTE opcode) // Main functions
 		break;
 
 	case 0xAC: // STO Storing OPCODES abs
-
 		HB = fetch();
 		LB = fetch();
-
 		address += (WORD)((WORD)HB << 8) + LB;
 		if (address >= 0 && address < MEMORY_SIZE) {
 			Memory[address] = Registers[REGISTER_A];
@@ -629,11 +619,9 @@ void Group_1(BYTE opcode) // Main functions
 		break;
 
 	case 0xBC: // STO abs,X
-
 		address += Index_Registers[REGISTER_X];
 		HB = fetch();
 		LB = fetch();
-
 		address += (WORD)((WORD)HB << 8) + LB;
 		if (address >= 0 && address < MEMORY_SIZE) {
 			Memory[address] = Registers[REGISTER_A];
@@ -643,11 +631,9 @@ void Group_1(BYTE opcode) // Main functions
 		break;
 
 	case 0xCC: // STO abs, Y
-
 		address += Index_Registers[REGISTER_Y];
 		HB = fetch();
 		LB = fetch();
-
 		address += (WORD)((WORD)HB << 8) + LB;
 		if (address >= 0 && address < MEMORY_SIZE) {
 			Memory[address] = Registers[REGISTER_A];
@@ -657,10 +643,10 @@ void Group_1(BYTE opcode) // Main functions
 		break;
 
 	case 0xDC: // STO abs, XY
-
 		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
 		HB = fetch();
 		LB = fetch();
+		address += (WORD)((WORD)HB << 8) + LB;
 		if (address >= 0 && address < MEMORY_SIZE) {
 			Memory[address] = Registers[REGISTER_A];
 		}
@@ -671,12 +657,12 @@ void Group_1(BYTE opcode) // Main functions
 	case 0xEC: // STO (ind),XY
 		HB = fetch();
 		LB = fetch();
-		address = (WORD)((WORD)HB << 8) + LB;
+		address += (WORD)((WORD)HB << 8) + LB;
 		HB = Memory[address];
 		LB = Memory[address + 1];
-		address = (WORD)((WORD)HB << 8) + LB;
+		address += (WORD)((WORD)HB << 8) + LB;
 		address += Index_Registers[REGISTER_X];
-		address += (WORD)((WORD)Index_Registers[REGISTER_X] << 8);
+		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8);
 		if (address >= 0 && address < MEMORY_SIZE) {
 			Memory[address] = Registers[REGISTER_A];
 		}
@@ -685,41 +671,31 @@ void Group_1(BYTE opcode) // Main functions
 		break;
 
 	case 0x07: // MV (#) 
-
-		data = fetch();
-		Registers[REGISTER_B] = data;
+		Registers[REGISTER_B] = fetch();
 		set_flag_n(Registers[REGISTER_B]);
 		set_flag_z(Registers[REGISTER_B]);
 		break;
 
 	case 0x08: // MV (#) 
-
-		data = fetch();
-		Registers[REGISTER_C] = data;
+		Registers[REGISTER_C] = fetch();
 		set_flag_n(Registers[REGISTER_C]);
 		set_flag_z(Registers[REGISTER_C]);
 		break;
 
 	case 0x09: // MV (#) 
-
-		data = fetch();
-		Registers[REGISTER_D] = data;
+		Registers[REGISTER_D] = fetch();
 		set_flag_n(Registers[REGISTER_D]);
 		set_flag_z(Registers[REGISTER_D]);
 		break;
 
 	case 0x0A: // MV (#) 
-
-		data = fetch();
-		Registers[REGISTER_E] = data;
+		Registers[REGISTER_E] = fetch();
 		set_flag_n(Registers[REGISTER_E]);
 		set_flag_z(Registers[REGISTER_E]);
 		break;
 
 	case 0x0B: // MV (#) 
-
-		data = fetch();
-		Registers[REGISTER_F] = data;
+		Registers[REGISTER_F] = fetch();
 		set_flag_n(Registers[REGISTER_F]);
 		set_flag_z(Registers[REGISTER_F]);
 		break;
@@ -896,6 +872,101 @@ void Group_1(BYTE opcode) // Main functions
 		set_flag_v(Registers[REGISTER_A], Registers[REGISTER_F], (BYTE)temp_word);
 
 		Registers[REGISTER_A] = (BYTE)temp_word;
+		break;
+
+	case 0x24://SUB A B
+		temp_word = (WORD)Registers[REGISTER_A] - (WORD)Registers[REGISTER_B];
+		if ((Flags & FLAG_C) != 0) {
+			temp_word--;
+		}
+		if (temp_word >= 0x100)//if overflowed set flag
+		{
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Registers[REGISTER_A] = (BYTE)temp_word;
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], -Registers[REGISTER_B], (BYTE)temp_word);
+		break;
+
+	case 0x34://SUB A C
+		temp_word = (WORD)Registers[REGISTER_A] - (WORD)Registers[REGISTER_C];
+		if ((Flags & FLAG_C) != 0) {
+			temp_word--;
+		}
+		if (temp_word >= 0x100)//if overflowed set flag
+		{
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Registers[REGISTER_A] = (BYTE)temp_word;
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], -Registers[REGISTER_C], (BYTE)temp_word);
+		break;
+
+	case 0x44://SUB A D
+		temp_word = (WORD)Registers[REGISTER_A] - (WORD)Registers[REGISTER_D];
+		if ((Flags & FLAG_C) != 0) {
+			temp_word--;
+		}
+		if (temp_word >= 0x100)//if overflowed set flag
+		{
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Registers[REGISTER_A] = (BYTE)temp_word;
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], -Registers[REGISTER_D], (BYTE)temp_word);
+		break;
+
+	case 0x54://SUB A E
+		temp_word = (WORD)Registers[REGISTER_A] - (WORD)Registers[REGISTER_E];
+		if ((Flags & FLAG_C) != 0) {
+			temp_word--;
+		}
+		if (temp_word >= 0x100)//if overflowed set flag
+		{
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Registers[REGISTER_A] = (BYTE)temp_word;
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], -Registers[REGISTER_E], (BYTE)temp_word);
+		break;
+
+	case 0x64://SUB A F
+		temp_word = (WORD)Registers[REGISTER_A] - (WORD)Registers[REGISTER_F];
+		if ((Flags & FLAG_C) != 0) {
+			temp_word--;
+		}
+		if (temp_word >= 0x100)//if overflowed set flag
+		{
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		Registers[REGISTER_A] = (BYTE)temp_word;
+
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], -Registers[REGISTER_F], (BYTE)temp_word);
 		break;
 
 	case 0x25: // Compare CMP A-B
@@ -1572,6 +1643,20 @@ void Group_1(BYTE opcode) // Main functions
 		set_flag_n(Registers[REGISTER_A]);
 		set_flag_z(Registers[REGISTER_A]);
 		Registers[REGISTER_A] = (BYTE)temp_word;
+		break;
+
+	case 0x84://CPI #
+		temp = fetch();
+		temp_word = (WORD)Registers[REGISTER_A] - (WORD)temp;
+		if (temp_word >= 0x100) {
+			Flags = Flags | FLAG_C;
+		}
+		else {
+			Flags = Flags & (0xFF - FLAG_C);
+		}
+		set_flag_n((BYTE)temp_word);
+		set_flag_z((BYTE)temp_word);
+		set_flag_v(Registers[REGISTER_A], -temp, (BYTE)temp_word);
 		break;
 
 	case 0x85: // inclusive or ORI
