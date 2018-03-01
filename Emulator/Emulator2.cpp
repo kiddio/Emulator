@@ -1,7 +1,15 @@
 
+/*
+* Author: Farhad Sharif 17017678
+* Created: 08.02.18
+* Revised: 01.03.18 (Final comments)
+* Description: Emulates the Chimera-2018-E Processor
+* User advice: None
+*/
 
 #include "stdafx.h"
 #include <winsock2.h>
+
 
 #pragma comment(lib, "wsock32.lib")
 
@@ -412,7 +420,7 @@ void set_flag_i(BYTE inReg)//interrupt
 }
 
 
-void set_flag_n(BYTE inReg)
+void set_flag_n(BYTE inReg) // Negative flag non word
 {
 	BYTE reg;
 	reg = inReg;
@@ -515,7 +523,7 @@ void set_flag_v(BYTE in1, BYTE in2, BYTE out1) {
 }
 
 
-void Group_1(BYTE opcode)
+void Group_1(BYTE opcode) // Main functions
 {
 	BYTE LB = 0;
 	BYTE HB = 0;
@@ -527,7 +535,7 @@ void Group_1(BYTE opcode)
 
 	switch (opcode)
 	{
-	case 0x90: //LDA Immidiate
+	case 0x90: //LDA Immidiate addressing
 
 		data = fetch();
 		Registers[REGISTER_A] = data;
@@ -535,7 +543,7 @@ void Group_1(BYTE opcode)
 		set_flag_z(Registers[REGISTER_A]);
 		break;
 
-	case 0xA0: // LDA abs
+	case 0xA0: // LDA abs  Absolute addressing
 
 		HB = fetch();
 		LB = fetch();
@@ -563,7 +571,7 @@ void Group_1(BYTE opcode)
 		set_flag_z(Registers[REGISTER_A]);
 		break;
 
-	case 0xC0: //LDA abs,Y
+	case 0xC0: //LDA abs,Y Register Y addressed
 
 		address += Index_Registers[REGISTER_Y];
 		HB = fetch();
@@ -577,7 +585,7 @@ void Group_1(BYTE opcode)
 		set_flag_z(Registers[REGISTER_A]);
 		break;
 
-	case 0xD0: //LDA abs,XY
+	case 0xD0: //LDA abs,XY Registers X and Y addressed
 
 		address += (WORD)((WORD)Index_Registers[REGISTER_Y] << 8) + Index_Registers[REGISTER_X];
 		HB = fetch();
